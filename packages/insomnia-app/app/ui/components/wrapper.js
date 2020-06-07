@@ -604,7 +604,10 @@ class Wrapper extends React.PureComponent<WrapperProps, State> {
               ref={registerModal}
               handleRender={handleRender}
               handleGetRenderContext={handleGetRenderContext}
+              nunjucksPowerUserMode={settings.nunjucksPowerUserMode}
+              isVariableUncovered={isVariableUncovered}
               workspace={activeWorkspace}
+              environment={activeEnvironment}
             />
 
             <MoveRequestGroupModal ref={registerModal} workspaces={workspaces} />

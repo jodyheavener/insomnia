@@ -181,9 +181,12 @@ export async function render<T>(
   const newObj = clone(obj);
 
   async function next(x: any, path: string, first: boolean = false): Promise<any> {
+    console.log('-------------- NEXT --------------');
     if (blacklistPathRegex && path.match(blacklistPathRegex)) {
       return x;
     }
+
+    console.log(x);
 
     const asStr = Object.prototype.toString.call(x);
 

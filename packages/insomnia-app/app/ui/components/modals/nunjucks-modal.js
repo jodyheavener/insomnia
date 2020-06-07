@@ -53,7 +53,15 @@ class NunjucksModal extends PureComponent {
   }
 
   render() {
-    const { handleRender, handleGetRenderContext, uniqueKey, workspace } = this.props;
+    const {
+      handleRender,
+      handleGetRenderContext,
+      nunjucksPowerUserMode,
+      isVariableUncovered,
+      uniqueKey,
+      workspace,
+      environment,
+    } = this.props;
     const { defaultTemplate } = this.state;
 
     let editor = null;
@@ -62,10 +70,14 @@ class NunjucksModal extends PureComponent {
       title = 'Variable';
       editor = (
         <VariableEditor
+          uniqueKey={uniqueKey}
           onChange={this._handleTemplateChange}
           defaultValue={defaultTemplate}
           handleRender={handleRender}
           handleGetRenderContext={handleGetRenderContext}
+          nunjucksPowerUserMode={nunjucksPowerUserMode}
+          isVariableUncovered={isVariableUncovered}
+          environment={environment}
         />
       );
     } else if (defaultTemplate.indexOf('{%') === 0) {
@@ -101,7 +113,10 @@ NunjucksModal.propTypes = {
   uniqueKey: PropTypes.string.isRequired,
   handleRender: PropTypes.func.isRequired,
   handleGetRenderContext: PropTypes.func.isRequired,
+  nunjucksPowerUserMode: PropTypes.bool,
+  isVariableUncovered: PropTypes.bool,
   workspace: PropTypes.object.isRequired,
+  environment: PropTypes.object,
 };
 
 export default NunjucksModal;

@@ -1,6 +1,7 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import autobind from 'autobind-decorator';
+import OneLineEditor from '../codemirror/one-line-editor';
 
 @autobind
 class VariableEditor extends PureComponent {
@@ -24,11 +25,6 @@ class VariableEditor extends PureComponent {
 
   componentDidUpdate() {
     this._resize();
-  }
-
-  _handleChange(e) {
-    const name = e.target.value;
-    this._update(name);
   }
 
   _resize() {
@@ -80,6 +76,13 @@ class VariableEditor extends PureComponent {
   }
 
   render() {
+    const {
+      environment,
+      handleRender,
+      handleGetRenderContext,
+      nunjucksPowerUserMode,
+      isVariableUncovered,
+    } = this.props;
     const { error, value, preview, variables, variableSource } = this.state;
     const isOther = !variables.find(v => value === `{{ ${v.name} }}`);
     return (
@@ -87,7 +90,20 @@ class VariableEditor extends PureComponent {
         <div className="form-control form-control--outlined">
           <label>
             Environment Variable
-            <select ref={this._setSelectRef} value={value} onChange={this._handleChange}>
+            {!isOther && (
+              <span className="pull-right">
+                {variableSource !== 'root' && environment && environment.color ? (
+                  <i className="fa fa-circle space-right" style={{ color: environment.color }} />
+                ) : null}
+                {variableSource}
+              </span>
+            )}
+            <select
+              ref={this._setSelectRef}
+              {...{ value }}
+              onChange={event => {
+                this._update(event.target.value);
+              }}>
               <option value={"{{ 'my custom template logic' | urlencode }}"}>-- Custom --</option>
               {variables.map((v, i) => (
                 <option key={`${i}::${v.name}`} value={`{{ ${v.name} }}`}>
@@ -97,14 +113,29 @@ class VariableEditor extends PureComponent {
             </select>
           </label>
         </div>
-        {isOther && (
-          <div className="form-control form-control--outlined">
-            <input type="text" defaultValue={value} onChange={this._handleChange} />
-          </div>
-        )}
+
         <div className="form-control form-control--outlined">
           <label>
-            Live Preview {variableSource && ` - {source: ${variableSource} }`}
+            {isOther ? 'Set a custom value' : 'Edit value'}
+            <OneLineEditor
+              forceEditor
+              type="text"
+              render={handleRender}
+              nunjucksPowerUserMode={nunjucksPowerUserMode}
+              isVariableUncovered={isVariableUncovered}
+              getRenderContext={handleGetRenderContext}
+              defaultValue={value}
+              onPaste={event => {
+                this._update(event.clipboardData.getData('text/plain'));
+              }}
+              onChange={this._update.bind(this)}
+            />
+          </label>
+        </div>
+
+        <div className="form-control form-control--outlined">
+          <label>
+            Live Preview
             {error ? (
               <textarea className="danger" value={error || 'Error'} readOnly />
             ) : (
@@ -122,6 +153,10 @@ VariableEditor.propTypes = {
   handleGetRenderContext: PropTypes.func.isRequired,
   defaultValue: PropTypes.string.isRequired,
   onChange: PropTypes.func.isRequired,
+  environment: PropTypes.object,
+  nunjucksPowerUserMode: PropTypes.bool,
+  isVariableUncovered: PropTypes.bool,
+  uniqueKey: PropTypes.string,
 };
 
 export default VariableEditor;
